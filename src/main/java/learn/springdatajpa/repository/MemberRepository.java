@@ -35,4 +35,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(name = "Member.findByUsername")
     List<Member> findByUsername(@Param("username") String username);
 
+    /**
+     * 네밈드 쿼리2:
+     * 인터페이스 메서드 쪽에 직접 JPQL 쿼리를 작성해서 매핑함 (이름 없는 네임드 쿼리)
+     * 네임드 쿼리의 장점을 유지하면서 단점을 커버한 방식
+     *
+     * 실무에서 많이 사용하는 기능
+     * 간단한 쿼리는 쿼리 메서드로, 복잡한 쿼리는 이 방식으로 해결함
+     */
+    @Query("select m from Member m where m.username = :username and m.age = :age")
+    List<Member> findMember(@Param("username") String username, @Param("age") int age);
+
 }
