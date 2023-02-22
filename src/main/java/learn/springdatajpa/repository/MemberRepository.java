@@ -2,6 +2,8 @@ package learn.springdatajpa.repository;
 
 import learn.springdatajpa.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -17,5 +19,20 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
 
+    /**
+     * 네임드 쿼리:
+     * 엔티티 클래스에 @NamedQuery로 규정한 JPQL 쿼리를 해당 메서드와 매핑함
+     * 해당 JPQL에 named parameter가 있는 경우, @Param으로 파라미터 이름과 매핑해주어야함
+     *
+     * @Query() 생략 가능:
+     * 이미 정의되어있는 네임드 쿼리의 이름(Member.findByUsername)과, 리포지토리의 타입 및
+     * 메서드명(Member + findByUsername)으로 해당 메서드가 네임드 쿼리와 자동 매핑됨.
+     * 만약 네임드 쿼리가 없다면 쿼리 메서드 기능으로 생성한 쿼리가 매핑됨.
+     *
+     * 장점: @NamedQuery에 정의된 쿼리는 애플리케이션 로딩 시점에 파싱되고 문법 오류가 있으면 예외가 발생함
+     * 단점: 쿼리가 정의된 곳(엔티티 클래스)과 매핑된 곳이 떨어져 있음
+     */
+    @Query(name = "Member.findByUsername")
+    List<Member> findByUsername(@Param("username") String username);
 
 }
