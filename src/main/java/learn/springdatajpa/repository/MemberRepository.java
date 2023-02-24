@@ -1,5 +1,6 @@
 package learn.springdatajpa.repository;
 
+import learn.springdatajpa.dto.MemberDto;
 import learn.springdatajpa.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -46,4 +47,17 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.username = :username and m.age = :age")
     List<Member> findMember(@Param("username") String username, @Param("age") int age);
 
+    /**
+     * 값 조회:
+     * 위까지는 엔티티 조회 방식. 이건 특정 필드 값 조회
+     */
+    @Query("select m.username from Member m")
+    List<String> findUsernameList();
+
+    /**
+     * Dto로 조회:
+     * JPQL에서 DTO 타입을 사용 시, 패키지 경로를 포함한 풀네임 사용
+     */
+    @Query("select new learn.springdatajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
+    List<MemberDto> findMemberDto();
 }
