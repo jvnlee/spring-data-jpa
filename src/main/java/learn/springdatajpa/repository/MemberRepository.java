@@ -60,4 +60,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @Query("select new learn.springdatajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
+
+    /**
+     * 파라미터 바인딩 (컬렉션 타입):
+     * 네임드 파라미터로 컬렉션 타입도 넘길 수 있음
+     */
+    @Query("select m from Member m where m.username in :usernames")
+    List<Member> findByUsernames(@Param("usernames") List<String> usernames);
 }

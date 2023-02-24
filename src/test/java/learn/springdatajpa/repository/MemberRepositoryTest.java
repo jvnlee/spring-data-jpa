@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -119,6 +121,20 @@ class MemberRepositoryTest {
 
         List<MemberDto> result = memberRepository.findMemberDto();
         assertThat(result.get(0).getTeamName()).isEqualTo(teamA.getName());
+    }
+
+    @Test
+    void findByUsernames() {
+        Member memberA = new Member("A", 10);
+        Member memberB = new Member("B", 20);
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<String> usernames = Arrays.asList(memberA.getUsername(), memberB.getUsername());
+
+        List<Member> result = memberRepository.findByUsernames(usernames);
+        assertThat(result.get(0).getUsername()).isEqualTo(memberA.getUsername());
+        assertThat(result.get(1).getUsername()).isEqualTo(memberB.getUsername());
     }
 
 }
