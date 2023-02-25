@@ -2,6 +2,9 @@ package learn.springdatajpa.repository;
 
 import learn.springdatajpa.dto.MemberDto;
 import learn.springdatajpa.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -67,4 +70,27 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @Query("select m from Member m where m.username in :usernames")
     List<Member> findByUsernames(@Param("usernames") List<String> usernames);
+
+    /**
+     * 페이징 쿼리
+     *
+     * @param age
+     * @param pageable Pageable 인터페이스의 구현체인 PageRequest 객체에 원하는 페이지 번호, 크기, 정렬 조건 등을 넣어 넘길 수 있음
+     * @return 반환 타입은 Page, Slice, List 모두 가능
+     * Page인 경우, 페이징에 필요한 count 쿼리도 내부적으로 함께 나감. 덕분에 전체 페이지 개수나 전체 원소 개수를 알 수 있음
+     * Slice인 경우, PageRequest에서 정한 limit 보다 1 큰 개수를 조회함. count 쿼리 없이도 다음 페이지 확인 가능 (더보기 기능 같은 것을 구현할 때 활용)
+     * List인 경우, count 쿼리 없이 특정 페이지 결과 자체만 반환함
+     */
+    Page<Member> findPageByAge(int age, Pageable pageable);
+    Slice<Member> findSliceByAge(int age, Pageable pageable);
+
+    /**
+     * 페이징 쿼리 - 카운트 쿼리 최적화
+     *
+     * 페이징 쿼리에서 반환 타입을 Page로 하는 경우 count 쿼리도 자동적으로 함께 나가는데, 만약 데이터의 개수가 굉장히 많다면
+     * 전체 개수를 세는 count 쿼리로 인해 성능 이슈가 생길 수 있음. 따라서 개발자가 직접 최적화된 count 쿼리를 작성해서 지정해줄 수 있음.
+     * 예시에서 원본 쿼리는 left outer join이 이루어졌는데, count 시에는 결국 해당 조인이 의미 없으므로 빼준 모습
+습    */
+    @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m.username) from Member m")
+    Page<Member> findPageByAge2(int age, Pageable pageable);
 }

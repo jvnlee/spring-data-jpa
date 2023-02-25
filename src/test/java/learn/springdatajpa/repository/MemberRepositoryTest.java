@@ -6,6 +6,9 @@ import learn.springdatajpa.entity.Team;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -135,6 +138,23 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findByUsernames(usernames);
         assertThat(result.get(0).getUsername()).isEqualTo(memberA.getUsername());
         assertThat(result.get(1).getUsername()).isEqualTo(memberB.getUsername());
+    }
+
+    @Test
+    void findByAge() {
+        memberRepository.save(new Member("m1", 10));
+        memberRepository.save(new Member("m2", 10));
+        memberRepository.save(new Member("m3", 10));
+        memberRepository.save(new Member("m4", 10));
+        memberRepository.save(new Member("m5", 10));
+
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Page<Member> page = memberRepository.findPageByAge(10, pageRequest);
+        List<Member> content = page.getContent();
+
+        assertThat(content.size()).isEqualTo(3);
+        assertThat(page.getTotalElements()).isEqualTo(5);
     }
 
 }
