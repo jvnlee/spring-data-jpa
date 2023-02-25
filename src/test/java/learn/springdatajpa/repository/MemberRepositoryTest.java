@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +29,9 @@ class MemberRepositoryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -157,4 +162,20 @@ class MemberRepositoryTest {
         assertThat(page.getTotalElements()).isEqualTo(5);
     }
 
+    @Test
+    void bulkAddAge() {
+        memberRepository.save(new Member("m1", 10));
+        memberRepository.save(new Member("m2", 19));
+        memberRepository.save(new Member("m3", 20));
+        memberRepository.save(new Member("m4", 24));
+        memberRepository.save(new Member("m5", 40));
+
+        int resultCount = memberRepository.bulkAddAge(20);
+
+        List<Member> result = memberRepository.findByUsername("m5");
+        Member m5 = result.get(0);
+
+        assertThat(resultCount).isEqualTo(3);
+        assertThat(m5.getAge()).isEqualTo(41);
+    }
 }

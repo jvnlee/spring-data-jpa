@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -93,4 +94,18 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 습    */
     @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m.username) from Member m")
     Page<Member> findPageByAge2(int age, Pageable pageable);
+
+    /**
+     * 벌크 업데이트 쿼리
+     * 반드시 @Modifying을 붙여줘야 해당 쿼리가 데이터 변경에 관한 것임을 명시할 수 있음
+     *
+     * 주의:
+     * 벌크 연산을 하면 영속성 컨텍스트를 건너뛰고 DB에 곧바로 쿼리를 날리기 때문에 영속성 컨텍스트와 DB 데이터간 정합성 문제가 생길 수 있음
+     * 그래서 벌크 연산 호출 이후에는 반드시 영속성 컨텍스트를 깨끗이 비워줘야함
+     * (한 트랜잭션 내에서 벌크 연산 이후 조회하는 케이스에 해당되고, 트랜잭션 내에서 벌크연산만 단독 수행이면 상관 없음)
+     * 수동으로 clear()를 호출하는 대신, @Modifying에 clearAutomatically = true 옵션을 넣으면 자동으로 벌크 연산 이후 clear 해줌
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAddAge(@Param("age") int age);
 }
