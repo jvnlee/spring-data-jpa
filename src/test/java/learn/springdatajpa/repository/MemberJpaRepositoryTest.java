@@ -19,7 +19,7 @@ class MemberJpaRepositoryTest {
     MemberJpaRepository repository;
 
     @Test
-    void testAll() {
+    void crudAndCount() {
         Member memberA = new Member("A", 10, null);
         Member memberB = new Member("B", 10, null);
         repository.save(memberA);
@@ -39,6 +39,21 @@ class MemberJpaRepositoryTest {
 
         long count = repository.count();
         assertThat(count).isEqualTo(0);
+    }
+
+    @Test
+    void paging() {
+        repository.save(new Member("m1", 10));
+        repository.save(new Member("m2", 10));
+        repository.save(new Member("m3", 10));
+        repository.save(new Member("m4", 10));
+        repository.save(new Member("m5", 10));
+
+        List<Member> members = repository.findByAge(10, 0, 3);
+        long totalCount = repository.totalCount(10);
+
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
     }
 
 }
