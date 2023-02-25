@@ -56,4 +56,17 @@ class MemberJpaRepositoryTest {
         assertThat(totalCount).isEqualTo(5);
     }
 
+    @Test
+    void bulkAddAge() {
+        repository.save(new Member("m1", 10));
+        repository.save(new Member("m2", 19));
+        repository.save(new Member("m3", 20));
+        repository.save(new Member("m4", 24));
+        repository.save(new Member("m5", 40));
+
+        int resultCount = repository.bulkAddAge(20);
+
+        assertThat(resultCount).isEqualTo(3);
+    }
+
 }
