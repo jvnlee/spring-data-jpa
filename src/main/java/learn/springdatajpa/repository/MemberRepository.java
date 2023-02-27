@@ -5,6 +5,7 @@ import learn.springdatajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -108,4 +109,25 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAddAge(@Param("age") int age);
+
+    /**
+     * EntityGraph으로 페치 조인
+     *
+     * 페치 조인을 사용할 때, @Query에 JPQL을 작성하는 방식도 가능하지만 @EntityGraph를 활용하면 직접 JPQL을 작성하지 않고도 가능함
+     * 연관 엔티티의 필드명을 attributePaths에 명시하면 됨
+     *
+     * findAll()은 개발자가 작성하는 커스텀 메서드가 아닌 Spring Data JPA의 기본 제공 메서드에서 활용하는 법에 대한 예시이고,
+     * findAllCustom()은 @Query로 JPQL을 직접 작성해서 사용하는 메서드에서 명시적 페치 조인 없이 @EntityGraph로 페치 조인을 하는 방법에 대한 예시
+     * findByAgeGreaterThan()은 쿼리 메서드 방식에서 사용하는 예시
+     */
+    @Override
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findAll();
+
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m")
+    List<Member> findAllCustom();
+
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findByAgeGreaterThan(int age);
 }

@@ -178,4 +178,30 @@ class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
         assertThat(m5.getAge()).isEqualTo(41);
     }
+
+    @Test
+    void findAll() {
+        Team teamA = new Team("TeamA");
+        Team teamB = new Team("TeamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("m1", 10, teamA);
+        Member member2 = new Member("m2", 10, teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> result = memberRepository.findAll(); // 오버라이드 된 findAll() 사용
+
+        for (Member member : result) {
+            System.out.println("member name = " + member.getUsername());
+            System.out.println("team class = " + member.getTeam().getClass()); // 프록시가 아닌 원본 엔티티 클래스
+            System.out.println("team name = " + member.getTeam().getName());
+
+        }
+        /*
+         쿼리 로그로 @EntityGraph가 페치 조인처럼 동작하는 것 확인.
+         연관 엔티티에 대한 추가 쿼리가 나가는 N+1 문제가 발생하지 않음
+         */
+    }
 }
