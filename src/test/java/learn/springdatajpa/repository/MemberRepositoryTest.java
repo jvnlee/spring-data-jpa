@@ -204,4 +204,18 @@ class MemberRepositoryTest {
          연관 엔티티에 대한 추가 쿼리가 나가는 N+1 문제가 발생하지 않음
          */
     }
+
+    @Test
+    void findReadOnlyByUsername() {
+        Member member = new Member("m1", 10);
+        memberRepository.save(member);
+        em.flush();
+        em.clear();
+
+        Member findMember = memberRepository.findReadOnlyByUsername("m1");
+        findMember.changeUsername("m2");
+
+        em.flush(); // 업데이트를 위해 flush 강제 호출
+        // 그러나 readOnly 메서드로 조회했기 때문에 더티 체킹이 불가능하고, update 쿼리 자체가 발생하지 않음
+    }
 }

@@ -5,12 +5,10 @@ import learn.springdatajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.QueryHint;
 import java.util.List;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
@@ -130,4 +128,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @EntityGraph(attributePaths = {"team"})
     List<Member> findByAgeGreaterThan(int age);
+
+    /**
+     * JPA Hint
+     *
+     * SQL 힌트가 아닌, JPA에게 제공하는 힌트.
+     * 예시에서는 힌트 옵션 중에서 readOnly를 true로 설정함.
+     * 이렇게 하면 이 메서드로 조회한 데이터에 대해서는 조회 이외의 변경 작업이 불가능함
+     * 즉, 읽기 전용으로 미리 설정했기 때문에 영속성 컨텍스트는 더티 체킹을 위한 스냅샷도 만들지 않고, 변경에 대한 가능성을 아예 닫아놓음.
+     */
+    @QueryHints(value = {@QueryHint(name = "org.hibernate.readOnly", value = "true")})
+    Member findReadOnlyByUsername(String username);
 }
