@@ -218,4 +218,15 @@ class MemberRepositoryTest {
         em.flush(); // 업데이트를 위해 flush 강제 호출
         // 그러나 readOnly 메서드로 조회했기 때문에 더티 체킹이 불가능하고, update 쿼리 자체가 발생하지 않음
     }
+
+    @Test
+    void findLockByUsername() {
+        Member member = new Member("m1", 10);
+        memberRepository.save(member);
+        em.flush();
+        em.clear();
+
+        List<Member> result = memberRepository.findLockByUsername("m1");
+        // 쿼리 로그를 살펴보면 "select ... for update" 구문이 나간 것을 확인할 수 있음
+    }
 }

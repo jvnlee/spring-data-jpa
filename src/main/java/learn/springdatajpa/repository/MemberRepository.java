@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 import java.util.List;
 
@@ -139,4 +140,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @QueryHints(value = {@QueryHint(name = "org.hibernate.readOnly", value = "true")})
     Member findReadOnlyByUsername(String username);
+
+    /**
+     * Lock 사용
+     *
+     * 낙관적 락, 비관적 락 등 락 모드를 설정할 수 있는 어노테이션
+     * JPA에게 락 모드를 명시해서 실제 쿼리에 반영함
+     * 아래처럼 설정한 경우 "select ... for update"와 같이 비관적 락을 사용하는 SQL이 나감 (DB 방언 따라 다름)
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Member> findLockByUsername(String username);
 }
