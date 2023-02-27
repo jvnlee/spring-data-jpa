@@ -229,4 +229,16 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findLockByUsername("m1");
         // 쿼리 로그를 살펴보면 "select ... for update" 구문이 나간 것을 확인할 수 있음
     }
+
+    @Test
+    public void findMemberCustom() {
+        Member memberA = new Member("A", 10);
+        Member memberB = new Member("B", 20);
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<Member> result = memberRepository.findMemberCustom();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
 }
