@@ -2,6 +2,7 @@ package learn.springdatajpa.repository;
 
 import learn.springdatajpa.dto.MemberDto;
 import learn.springdatajpa.entity.Member;
+import learn.springdatajpa.projection.MemberProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -150,4 +151,28 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberCus
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByUsername(String username);
+
+    /**
+     * Native Query 사용
+     * JPQL을 사용하지 않고 직접 SQL을 작성하는 경우, nativeQuery = true 옵션 사용
+     *
+     * 네이티브 쿼리는 권장하지 않음.
+     * 반환 타입으로 DTO를 받기에 복잡하고, 동적 쿼리 사용 불가능, 애플리케이션 실행 시점에 문법 확인 불가능하기 때문
+     * 차라리 CustomRepository를 생성해서 JdbcTemplate, MyBatis 등으로 SQL을 사용하는 방식을 권장
+     * 복잡한 통계 쿼리도 웬만하면 네이티브 쿼리 사용하지 않고, QueryDSL로 풀어낼 수 있음
+     */
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findNativeQueryByUsername(String username);
+
+    /**
+     * Native Query + Projection
+     * 네이티브 쿼리의 반환 타입을 DTO로 받는 방법은 꽤 복잡한데, 원래는 JdbcTemplate나 MyBatis의 도움을 받았으나
+     * 스프링 데이터가 지원하는 Projection 인터페이스 방식을 사용해 DTO 타입으로 반환받기 수월해짐
+     */
+    @Query(
+        value = "select m.member_id as id, m.username, t.name as teamName from member m left join team t",
+        countQuery = "select count(*) from member",
+        nativeQuery = true
+    )
+    Page<MemberProjection> findNativeQueryProjection(Pageable pageable);
 }
